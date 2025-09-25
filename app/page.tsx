@@ -18,12 +18,20 @@ export default function Home() {
             <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">사용법</a>
             <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">요금</a>
           </div>
-          <Link 
-            href="/login" 
-            className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-          >
-            시작하기
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link 
+              href="/login" 
+              className="bg-gray-100 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-200 transition-all duration-200"
+            >
+              로그인
+            </Link>
+            <Link 
+              href="/dashboard" 
+              className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+            >
+              데모 체험하기
+            </Link>
+          </div>
         </nav>
       </header>
 
@@ -43,20 +51,18 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link 
-              href="/login" 
+              href="/dashboard" 
               className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2"
             >
               <Camera className="w-5 h-5" />
-              <span>무료로 시작하기</span>
+              <span>데모 체험하기</span>
             </Link>
-            <button className="text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-2">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </div>
-              <span>데모 보기</span>
-            </button>
+            <Link 
+              href="/login" 
+              className="bg-white text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2 border border-gray-300"
+            >
+              <span>로그인</span>
+            </Link>
           </div>
         </div>
       </section>
@@ -166,11 +172,11 @@ export default function Home() {
             복잡한 식단 기록은 이제 그만! CalAI와 함께 간편한 식단 관리를 시작하세요.
           </p>
           <Link 
-            href="/login" 
+            href="/dashboard" 
             className="bg-white text-green-600 px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition-all duration-200 transform hover:scale-105 inline-flex items-center space-x-2"
           >
             <Camera className="w-5 h-5" />
-            <span>무료로 시작하기</span>
+            <span>데모 체험하기</span>
           </Link>
         </div>
       </section>
