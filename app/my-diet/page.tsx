@@ -164,9 +164,9 @@ export default function MyDietPage() {
               <button 
                 onClick={() => setShowImageUpload(true)}
                 className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-                title="이미지 업로드"
+                title="식단 이미지 분석"
               >
-                <Plus className="w-5 h-5" />
+                <Camera className="w-5 h-5" />
               </button>
               <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                 <Search className="w-5 h-5" />
@@ -183,12 +183,25 @@ export default function MyDietPage() {
         <div className="max-w-4xl mx-auto">
           {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-              나의 식단 기록
-            </h1>
-            <p className="text-gray-600">
-              {formatDate(selectedDate)}
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  나의 식단 기록
+                </h1>
+                <p className="text-gray-600">
+                  {formatDate(selectedDate)}
+                </p>
+              </div>
+              
+              {/* 메인 식단 분석 버튼 */}
+              <button
+                onClick={() => setShowImageUpload(true)}
+                className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center space-x-2 group"
+              >
+                <Camera className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span>식단 분석하기</span>
+              </button>
+            </div>
           </div>
 
           {/* Summary Stats */}
@@ -274,20 +287,32 @@ export default function MyDietPage() {
           {/* Meals List */}
           <div className="space-y-6">
             {filteredMeals.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
-                <Utensils className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Camera className="w-10 h-10 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   {selectedMealType ? `${selectedMealType} 기록이 없어요` : '기록된 식단이 없어요'}
                 </h3>
-                <p className="text-gray-600 mb-4">
-                  {selectedMealType ? '다른 끼니를 확인해보세요' : '첫 번째 식단을 기록해보세요!'}
+                <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                  {selectedMealType ? '다른 끼니를 확인해보세요' : 'AI가 음식 사진을 분석해서 칼로리와 영양성분을 자동으로 기록해드려요!'}
                 </p>
-                <Link 
-                  href="/dashboard"
-                  className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-200"
-                >
-                  식단 기록하기
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => setShowImageUpload(true)}
+                    className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 group"
+                  >
+                    <Camera className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>식단 분석하기</span>
+                  </button>
+                  <button
+                    onClick={() => setShowImageUpload(true)}
+                    className="bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <Camera className="w-5 h-5" />
+                    <span>AI로 식단 분석</span>
+                  </button>
+                </div>
               </div>
             ) : (
               filteredMeals.map((meal) => (
@@ -336,7 +361,16 @@ export default function MyDietPage() {
 
                   {/* Nutrition Summary */}
                   <div className="mt-4 pt-4 border-t border-gray-100">
-                    <h4 className="font-medium text-gray-900 mb-2">영양성분 요약</h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">영양성분 요약</h4>
+                      <button
+                        onClick={() => setShowImageUpload(true)}
+                        className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center space-x-1 transition-colors"
+                      >
+                        <Camera className="w-4 h-4" />
+                        <span>식단 추가</span>
+                      </button>
+                    </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div className="text-center">
                         <p className="text-gray-500">탄수화물</p>
@@ -407,6 +441,16 @@ export default function MyDietPage() {
           onAddToMeal={handleAddToMeal}
         />
       )}
+
+      {/* 플로팅 액션 버튼 - 모바일에서만 표시 */}
+      <div className="fixed bottom-6 right-6 z-40 sm:hidden">
+        <button
+          onClick={() => setShowImageUpload(true)}
+          className="w-14 h-14 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+        >
+          <Camera className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        </button>
+      </div>
     </div>
   )
 }

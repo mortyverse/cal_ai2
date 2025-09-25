@@ -78,10 +78,24 @@ export default function ImageUpload({ onImageUpload, disabled = false }: ImageUp
 
     const file = event.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
-      const syntheticEvent = {
-        target: { files: [file] }
-      } as React.ChangeEvent<HTMLInputElement>
-      handleFileSelect(syntheticEvent)
+      // 파일 검증 로직을 직접 호출
+      if (!file.type.startsWith('image/')) {
+        setError('이미지 파일만 업로드할 수 있습니다.')
+        return
+      }
+
+      // 파일 크기 검증 (10MB 제한)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('파일 크기는 10MB 이하여야 합니다.')
+        return
+      }
+
+      setError(null)
+      setSelectedFile(file)
+      
+      // 미리보기 URL 생성
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
     }
   }
 
