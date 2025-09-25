@@ -1,12 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Calendar, Filter, Search, Clock, Utensils, BarChart3, Camera } from "lucide-react"
+import { ArrowLeft, Calendar, Filter, Search, Clock, Utensils, BarChart3, Camera, Plus, X } from "lucide-react"
 import Link from "next/link"
+import ImageUpload from "@/components/ImageUpload.client"
+import NutritionResult from "@/components/NutritionResult.client"
 
 export default function MyDietPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null)
+  const [showImageUpload, setShowImageUpload] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [nutritionResult, setNutritionResult] = useState<any>(null)
+  const [showNutritionResult, setShowNutritionResult] = useState(false)
 
   // 임시 데이터 - 실제로는 Server Actions로 가져올 예정
   const mockMeals = [
@@ -84,6 +90,58 @@ export default function MyDietPage() {
     })
   }
 
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true)
+    
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '이미지 업로드에 실패했습니다.')
+      }
+
+      // 웹훅 응답이 있는 경우 영양 정보 결과 표시
+      if (result.nutritionData) {
+        setNutritionResult(result.nutritionData)
+        setShowNutritionResult(true)
+        setShowImageUpload(false)
+      } else {
+        // 웹훅 응답이 없는 경우 기본 성공 메시지
+        setShowImageUpload(false)
+        alert('이미지가 성공적으로 전송되었습니다!')
+      }
+      
+    } catch (error) {
+      console.error('이미지 업로드 오류:', error)
+      throw error
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleAddToMeal = async (nutritionData: any) => {
+    // TODO: 실제로는 서버에 저장하고 데이터를 새로고침해야 함
+    console.log('식단에 추가:', nutritionData)
+    
+    // 임시로 성공 메시지만 표시
+    alert(`${nutritionData.food}이(가) 식단에 추가되었습니다!`)
+    setShowNutritionResult(false)
+    setNutritionResult(null)
+  }
+
+  const handleCloseNutritionResult = () => {
+    setShowNutritionResult(false)
+    setNutritionResult(null)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -103,6 +161,13 @@ export default function MyDietPage() {
             </div>
             
             <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setShowImageUpload(true)}
+                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+                title="이미지 업로드"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
               <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                 <Search className="w-5 h-5" />
               </button>
@@ -293,6 +358,55 @@ export default function MyDietPage() {
           </div>
         </div>
       </div>
+
+      {/* 이미지 업로드 모달 */}
+      {showImageUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">식단 이미지 분석</h2>
+                <button
+                  onClick={() => setShowImageUpload(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  disabled={isUploading}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-sm text-gray-600 mb-4">
+                  음식 사진을 업로드하면 AI가 자동으로 칼로리와 영양성분을 분석해드립니다.
+                </p>
+                <ImageUpload 
+                  onImageUpload={handleImageUpload}
+                  disabled={isUploading}
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowImageUpload(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  disabled={isUploading}
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 영양 정보 결과 모달 */}
+      {showNutritionResult && nutritionResult && (
+        <NutritionResult
+          data={nutritionResult}
+          onClose={handleCloseNutritionResult}
+          onAddToMeal={handleAddToMeal}
+        />
+      )}
     </div>
   )
 }
