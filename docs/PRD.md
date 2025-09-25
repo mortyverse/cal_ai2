@@ -40,15 +40,16 @@
 
 #### **5. 기술 스택 (Required Tech Stack)**
 
-- **프론트엔드/백엔드:** Next.js (App Router)
+- **프론트엔드/백엔드:** Next.js (App Router) + Server Actions
 - **데이터베이스/인증:** Supabase (Auth, Database)
 - **핵심 로직/자동화:** n8n (모든 백엔드 로직 처리)
+- **서버 로직:** Next.js Server Actions (API Routes 대신)
 
-#### **6. n8n 웹훅 연동 명세 (n8n Webhook Integration) - ⭐ 시간 기반 자동 분류**
+#### **6. Server Actions 기반 n8n 웹훅 연동 명세 (Server Actions + n8n Webhook Integration) - ⭐ 시간 기반 자동 분류**
 
-- **Request (Next.js → n8n):**
+- **Request (Next.js Server Actions → n8n):**
 
-  - Next.js는 이미지 파일과 사용자 ID만을 `multipart/form-data` 형식으로 n8n 웹훅에 POST 요청한다. **끼니 정보는 절대 포함하지 않는다.**
+  - Next.js Server Actions는 이미지 파일과 사용자 ID만을 `multipart/form-data` 형식으로 n8n 웹훅에 POST 요청한다. **끼니 정보는 절대 포함하지 않는다.**
   - **요청 데이터:**
     1.  `image`: 실제 이미지 바이너리 파일
     2.  `userId`: Supabase에서 인증된 사용자의 ID
@@ -72,7 +73,7 @@
       - **[Step 1]에서 자동 판별한 `mealType`**
   6.  **[Step 5] 결과 반환:** 모든 과정이 성공하면 프론트엔드에 성공 응답을, 중간에 실패하면 실패 응답을 보낸다.
 
-- **Response (n8n → Next.js):**
+- **Response (n8n → Next.js Server Actions):**
   - - **성공 시** 응답 본문 예시 (사진에 밥, 김치찌개, 계란말이가 있는 경우):
     ```json
     {
@@ -139,3 +140,34 @@
   }
 }
 `
+
+#### **7. Server Actions 아키텍처 명세 (Server Actions Architecture)**
+
+- **핵심 Server Actions 함수들:**
+
+  - **`actions/auth.ts`**
+    - `signUp(formData: FormData)` - 회원가입
+    - `signIn(formData: FormData)` - 로그인
+    - `signOut()` - 로그아웃
+    - `getUser()` - 현재 사용자 정보 조회
+
+  - **`actions/food-upload.ts`**
+    - `uploadFoodImage(formData: FormData)` - 음식 이미지 업로드 및 n8n 웹훅 호출
+    - `processFoodAnalysis(result: any)` - n8n 분석 결과 처리 및 데이터베이스 저장
+
+  - **`actions/food-logs.ts`**
+    - `getFoodLogs(date?: string)` - 식단 기록 조회
+    - `updateFoodLog(id: string, formData: FormData)` - 식단 기록 수정
+    - `deleteFoodLog(id: string)` - 식단 기록 삭제
+
+  - **`actions/storage.ts`**
+    - `uploadImage(file: File)` - 이미지 파일 업로드
+    - `deleteImage(url: string)` - 이미지 파일 삭제
+    - `getImageUrl(path: string)` - 이미지 URL 생성
+
+- **Server Actions 활용 전략:**
+  - API Routes 대신 Server Actions 우선 사용
+  - `useActionState` 훅을 통한 클라이언트 상태 관리
+  - `revalidatePath`를 통한 캐시 무효화
+  - Server Components와 Client Components 최적화
+  - 보안성 향상 (CSRF 보호, 암호화된 액션 ID)
